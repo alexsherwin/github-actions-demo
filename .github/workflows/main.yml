@@ -53,39 +53,65 @@
 #      - run: ./prepare.sh
 #      - run: ./test.sh
 #
-name: CI
+#name: CI
+#on:
+#  push:
+#    branches: ['master']
+#  workflow_dispatch: {}
+#env:
+#  REGISTRY: ghcr.io
+#  IMAGE_NAME: ${{ github.repository }}
+#jobs:
+#  test:
+#    runs-on: ubuntu-latest
+#    defaults:
+#      run:
+#        working-directory: ./.github/scripts
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: actions/setup-node@v1
+#    - run: ./prepare.sh
+#    - run: ./test.sh
+#  build-and-push-image:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v4
+#      - name: Log in to the Container registry
+#        uses: docker/login-action@releases/v2
+#        with:
+#          registry: ${{ env.REGISTRY }}
+#          username: ${{ github.actor }}
+#          password: ${{ secrets.GITHUB_TOKEN }}
+#      - name: Build and push Docker image
+#        uses: docker/build-push-action@releases/v4
+#        with:
+#          context: .
+#          push: true
+#          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+#
+name: Create and publish a Docker image
 on:
-  push:
-    branches: ['master']
+push: tags:
+      - 'v*' # Matching v*, i.e. v1.0, v20.15.10
   workflow_dispatch: {}
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./.github/scripts
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
-    - run: ./prepare.sh
-    - run: ./test.sh
-  build-and-push-image:
+  create-release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Log in to the Container registry
-        uses: docker/login-action@releases/v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker image
-        uses: docker/build-push-action@releases/v4
-        with:
-          context: .
-          push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Changes in this Release
+            - First Change
+            - Second Change
+          draft: false
+          prerelease: false
