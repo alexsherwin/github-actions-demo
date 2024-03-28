@@ -22,10 +22,23 @@
 #        env:
 #          env_var: "This is a step var"
 #
+#name: CI
+#on:
+#  push:
+#    branches: ['master']
+#  workflow_dispatch: {}
+#jobs:
+#  checkout-test:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v4
+#      - run: ls -la
+#
 name: CI
 on:
   push:
-    branches: ['master']
+    branches: ['main']
   workflow_dispatch: {}
 jobs:
   checkout-test:
@@ -33,4 +46,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - run: ls -la
+      - uses: actions/setup-node@v1
+      - run: npm install
+      - run: npm test
