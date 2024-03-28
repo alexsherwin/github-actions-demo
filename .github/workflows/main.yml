@@ -7,17 +7,30 @@
 #    steps:
 #    - run: echo "hello world"
 #
-
+#
+#name: CI
+#on: [push, workflow_dispatch]
+#env:
+#  env_var: ${{ vars.REPO_VAR }}
+#jobs:
+#  test:
+#    env:
+#     env_var: "This is a job var"
+#    runs-on: ubuntu-latest
+#    steps:
+#      - run: echo ${{ env.env_var }}
+#        env:
+#          env_var: "This is a step var"
+#
 name: CI
-on: [push, workflow_dispatch]
-env:
-  env_var: ${{ vars.REPO_VAR }}
+on:
+  push:
+    branches: ['master']
+  workflow_dispatch: {}
 jobs:
-  test:
-    env:
-     env_var: "This is a job var"
+  checkout-test:
     runs-on: ubuntu-latest
     steps:
-      - run: echo ${{ env.env_var }}
-        env:
-          env_var: "This is a step var"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - run: ls -la
